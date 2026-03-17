@@ -112,7 +112,7 @@ async function stopRecording(reason = "finished") {
     if (detector && flattened.length > 0 && (reason === "finished" || reason === "timeout")) {
 
         try {
-            const result = detector(flattened);
+            const result = detector(flattened, recordedSampleRate);
             console.log("WASM detection result:", result);
         } catch (err) {
             console.error("WASM inference failed", {
