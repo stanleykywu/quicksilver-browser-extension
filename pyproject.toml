@@ -1,0 +1,14 @@
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "fakepyrint"
+version = "0.1.0"
+description = "Python bindings for computing fakeprints from audio data"
+requires-python = ">=3.9"
+dependencies = []
+
+[tool.maturin]
+features = ["python"]
+module-name = "fakepyrint"
