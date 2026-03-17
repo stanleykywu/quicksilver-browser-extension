@@ -7,7 +7,14 @@ name = "fakepyrint"
 version = "0.1.0"
 description = "Python bindings for computing fakeprints from audio data"
 requires-python = ">=3.9"
-dependencies = []
+dependencies = [
+    "cbor2>=5.8.0",
+    "joblib>=1.5.3",
+    "scikit-learn>=1.6.1",
+    "torchaudio>=2.8.0",
+    "torchcodec>=0.9.1",
+    "tqdm>=4.67.3",
+]
 
 [tool.maturin]
 features = ["python"]
