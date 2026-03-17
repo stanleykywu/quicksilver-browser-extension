@@ -113,7 +113,16 @@ async function stopRecording(reason = "finished") {
 
         try {
             const result = detector(flattened);
+            const mood = result > 0.5 ? "Likely AI" : "Unlikely AI";
+
             console.log("WASM detection result:", result);
+            console.log("Detected mood:", mood);
+
+            chrome.runtime.sendMessage({
+                type: "DETECTION_RESULT",
+                result,
+                mood
+            });
         } catch (err) {
             console.error("WASM inference failed", {
                 error: err instanceof Error ? err.message : String(err),

@@ -1,16 +1,20 @@
 const recordButton = document.getElementById("record");
 const cancelButton = document.getElementById("cancel");
 const timerDisplay = document.getElementById("timer");
+const resultDisplay = document.getElementById("result");
 
 let isRecording = false;
 let countdownInterval;
 let countdownEnd;
 
 restoreState();
+restoreResult();
 
 recordButton.addEventListener("click", async () => {
     if (isRecording) return;
+
     try {
+        resultDisplay.textContent = "Listening...";
         await chrome.runtime.sendMessage({ type: "START_RECORDING" });
         enterRecordingState();
     } catch (err) {
@@ -26,6 +30,16 @@ cancelButton.addEventListener("click", () => {
 chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === "RECORDING_FINISHED") {
         exitRecordingState();
+    }
+
+    if (msg.type === "DETECTION_RESULT") {
+        resultDisplay.textContent = msg.mood;
+        chrome.storage.local.set({
+            detectionResult: {
+                mood: msg.mood,
+                score: msg.result
+            }
+        });
     }
 });
 
@@ -105,6 +119,22 @@ async function restoreState() {
     } catch (err) {
         console.error("Failed to restore state", err);
         setTimerDisplay(30_000);
+    }
+}
+
+async function restoreResult() {
+    try {
+        const stored = await chrome.storage.local.get("detectionResult");
+        const saved = stored.detectionResult;
+
+        if (saved && saved.mood) {
+            resultDisplay.textContent = saved.mood;
+        } else {
+            resultDisplay.textContent = "No result yet";
+        }
+    } catch (err) {
+        console.error("Failed to restore result", err);
+        resultDisplay.textContent = "No result yet";
     }
 }
 
