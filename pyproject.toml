@@ -12,3 +12,4 @@ dependencies = []
 [tool.maturin]
 features = ["python"]
 module-name = "fakepyrint"
+release = true
