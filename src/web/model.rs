@@ -71,3 +71,21 @@ pub fn run_inference(pcm_audio: &[f32], input_sample_rate: u32) -> Result<f64, J
     let features = compute_fakeprint(pcm_audio, input_sample_rate, None, None).to_vec();
     MODEL.predict(&features).map_err(|e| JsValue::from_str(&e))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_model_prediction() {
+        let model = BinaryLogisticRegression {
+            coef: vec![0.5, -0.25],
+            intercept: 0.0,
+            n_features: 2,
+        };
+        let features = vec![1.0, 2.0];
+        let prob = model.predict(&features).unwrap();
+        let expected = 0.5; // sigmoid(0) = 0.5
+        assert!((prob - expected).abs() < 1e-6);
+    }
+}
