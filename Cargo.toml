@@ -6,16 +6,26 @@ edition = "2024"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[features]
+default = []
+python = ["dep:pyo3"]
+web = ["dep:serde", "dep:serde_cbor", "dep:wasm-bindgen"]
+
 [dependencies]
+pyo3 = { version = "0.22.6", features = ["extension-module"], optional = true }
+realfft = "3.5.0"
 scirs2-core = "0.3.1"
 scirs2-interpolate = "0.3.1"
 scirs2-signal = "0.3.1"
-serde = { version = "1.0.228", features = ["derive"] }
-serde_cbor = "0.11.2"
-wasm-bindgen = "0.2"
+serde = { version = "1.0.228", features = ["derive"], optional = true }
+serde_cbor = { version = "0.11.2", optional = true }
+wasm-bindgen = { version = "0.2", optional = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { version = "0.3.4", features = ["wasm_js"] }
 getrandom_02 = { package = "getrandom", version = "0.2.17", features = ["js"] }
 getrandom_04 = { package = "getrandom", version = "0.4.2", features = ["wasm_js"] }
 uuid = { version = "1.22.0", features = ["rng-getrandom"] }
+
+[dev-dependencies]
+hound = "3.5.1"
