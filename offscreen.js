@@ -112,7 +112,7 @@ async function stopRecording(reason = "finished") {
     if (detector && flattened.length > 0 && (reason === "finished" || reason === "timeout")) {
 
         try {
-            const result = detector(flattened);
+            const result = detector(flattened, recordedSampleRate);
             const mood = result > 0.5 ? "Likely AI" : "Unlikely AI";
 
             console.log("WASM detection result:", result);
