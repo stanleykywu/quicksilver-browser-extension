@@ -14,9 +14,9 @@ web = ["dep:serde", "dep:serde_cbor", "dep:wasm-bindgen"]
 [dependencies]
 pyo3 = { version = "0.22.6", features = ["extension-module"], optional = true }
 realfft = "3.5.0"
+rubato = "0.16.2"
 scirs2-core = "0.3.1"
 scirs2-interpolate = "0.3.1"
-scirs2-signal = "0.3.1"
 serde = { version = "1.0.228", features = ["derive"], optional = true }
 serde_cbor = { version = "0.11.2", optional = true }
 wasm-bindgen = { version = "0.2", optional = true }
