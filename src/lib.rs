@@ -13,7 +13,7 @@ mod tests {
 
     #[test]
     #[cfg(feature = "web")]
-    fn test_ai() {
+    fn integration_test_ai() {
         let mut reader =
             hound::WavReader::open("tests/assets/ai.wav").expect("Failed to open WAV file");
         let spec = reader.spec();
@@ -45,7 +45,7 @@ mod tests {
     }
     #[test]
     #[cfg(feature = "web")]
-    fn test_human() {
+    fn integration_test_human() {
         let mut reader =
             hound::WavReader::open("tests/assets/human.wav").expect("Failed to open WAV file");
         let spec = reader.spec();

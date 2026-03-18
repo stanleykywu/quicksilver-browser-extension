@@ -75,6 +75,10 @@ pub fn run_inference(pcm_audio: &[f32], input_sample_rate: u32) -> Result<f64, J
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(target_arch = "wasm32")]
+    use wasm_bindgen_test::wasm_bindgen_test;
+    #[cfg(target_arch = "wasm32")]
+    wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
 
     #[test]
     fn test_model_prediction1() {
@@ -132,6 +136,23 @@ mod tests {
             (prob - expected).abs() < 1e-6,
             "Expected={}, got={}",
             expected,
+            prob
+        );
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    #[wasm_bindgen_test]
+    fn test_run_inference_dummy_audio() {
+        let pcm_audio = (0..(44_100 * 2))
+            .flat_map(|i| {
+                let sample = if i % 2 == 0 { 0.1 } else { -0.1 };
+                [sample, sample]
+            })
+            .collect::<Vec<f32>>();
+        let prob = run_inference(&pcm_audio, 44_100).expect("Inference failed");
+        assert!(
+            (0.0..=1.0).contains(&prob),
+            "Expected probability in [0, 1], got {}",
             prob
         );
     }
