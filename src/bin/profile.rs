@@ -5,9 +5,15 @@ use ai_music_browser_detector::web;
 use hound;
 
 fn main() {
-    let input_path = std::env::args()
-        .nth(1)
-        .expect("Usage: cargo run --example profile -- <input.wav>");
+    let input_path = std::env::args().nth(1).expect(
+        format!(
+            "Usage: {} <input.wav>",
+            std::env::args()
+                .nth(0)
+                .unwrap_or_else(|| "cargo run --bin profile".into())
+        )
+        .as_str(),
+    );
     let mut reader = hound::WavReader::open(&input_path).expect("Failed to open WAV file");
     let spec = reader.spec();
     assert!(

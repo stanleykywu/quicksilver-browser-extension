@@ -20,6 +20,7 @@ scirs2-interpolate = "0.3.1"
 serde = { version = "1.0.228", features = ["derive"], optional = true }
 serde_cbor = { version = "0.11.2", optional = true }
 wasm-bindgen = { version = "0.2", optional = true }
+hound = "3.5.1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { version = "0.3.4", features = ["wasm_js"] }
@@ -28,7 +29,6 @@ getrandom_04 = { package = "getrandom", version = "0.4.2", features = ["wasm_js"
 uuid = { version = "1.22.0", features = ["rng-getrandom"] }
 
 [dev-dependencies]
-hound = "3.5.1"
 serde = "1.0.228"
 serde_json = "1.0.149"
 

@@ -15,10 +15,10 @@ INPUT_WAV="$2"
 
 case "$MODE" in
     web)
-        BUILD_ARGS=(--profile profiling --features web --example profile)
+        BUILD_ARGS=(--profile profiling --features web --bin profile)
         ;;
     core)
-        BUILD_ARGS=(--profile profiling --example profile)
+        BUILD_ARGS=(--profile profiling --bin profile)
         ;;
     *)
         echo "Invalid mode: $MODE"
@@ -59,4 +59,4 @@ echo "Building the binary..."
 cargo build "${BUILD_ARGS[@]}" # build with optimizations and debug info
 echo "Running the profiler..."
 # run the profiler
-samply record ./target/profiling/examples/profile "$INPUT_WAV"
+samply record ./target/profiling/profile "$INPUT_WAV"

@@ -1,9 +1,15 @@
 use hound;
 
 fn main() {
-    let input_path = std::env::args()
-        .nth(1)
-        .expect("Usage: cargo run --example resample -- <input.wav>");
+    let input_path = std::env::args().nth(1).expect(
+        format!(
+            "Usage: {} <input.wav>",
+            std::env::args()
+                .nth(0)
+                .unwrap_or_else(|| "cargo run --bin resample".into())
+        )
+        .as_str(),
+    );
     println!("Testing resampling on file: {}", input_path);
     let mut reader = hound::WavReader::open(&input_path).expect("Failed to open WAV file");
     let spec = reader.spec();
