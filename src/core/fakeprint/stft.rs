@@ -145,7 +145,7 @@ mod tests {
             .collect::<Vec<f32>>();
         let slice_begin = spec.sample_rate as usize * 10;
         let slice_end = spec.sample_rate as usize * 11;
-        // get only first 2 seconds
+        // get only first 1 second
         let audio_slice = open_audio_slice(&samples)
             .slice(s![slice_begin..slice_end, ..])
             .to_owned();
