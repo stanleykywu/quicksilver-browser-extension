@@ -11,6 +11,6 @@ fn main() {
         .samples::<i16>()
         .map(|s| s.unwrap() as f32 / i16::MAX as f32)
         .collect::<Vec<f32>>();
-    let fakeprint = core::compute_fakeprint(&samples, spec.sample_rate, None, None);
+    let fakeprint = core::compute_fakeprint(&samples, spec.sample_rate, None, None, None);
     println!("Fakeprint length: {}", fakeprint.len());
 }

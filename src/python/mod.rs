@@ -3,7 +3,7 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
 #[pyfunction(name = "compute_fakeprint")]
-#[pyo3(signature = (pcm_audio, input_sample_rate, output_sample_rate=None, f_range=None))]
+#[pyo3(signature = (pcm_audio, input_sample_rate, output_sample_rate=None, f_range=None, duration=None))]
 /// Python bindings for the `compute_fakeprint` function.
 /// `pcm_audio` is a 1D array of audio samples in the range [-1.0, 1.0].
 /// `input_sample_rate` is the sample rate of the input audio.
@@ -11,21 +11,32 @@ use pyo3::prelude::*;
 /// If None, it defaults to 44.1 kHz.
 /// `f_range` is a tuple of (min_freq, max_freq) to specify the frequency range for the fakeprint.
 /// If None, it defaults to (5000, 16000) Hz.
+/// `duration` is the maximum duration of audio to use for computation, in seconds.
+/// If None, it defaults to 30 seconds.
 fn py_compute_fakeprint(
     pcm_audio: Vec<f32>,
     input_sample_rate: u32,
     output_sample_rate: Option<u32>,
     f_range: Option<(f32, f32)>,
+    duration: Option<u32>,
 ) -> PyResult<Vec<f32>> {
     if pcm_audio.is_empty() {
         return Err(PyValueError::new_err("pcm_audio is empty"));
     }
 
-    Ok(compute_fakeprint(&pcm_audio, input_sample_rate, output_sample_rate, f_range).to_vec())
+    Ok(compute_fakeprint(
+        &pcm_audio,
+        input_sample_rate,
+        output_sample_rate,
+        f_range,
+        duration,
+    )
+    .to_vec())
 }
 
+// TODO: make this work without interleaving first
 #[pyfunction(name = "compute_fakeprint_2d")]
-#[pyo3(signature = (audio_2d, input_sample_rate, output_sample_rate=None, f_range=None))]
+#[pyo3(signature = (audio_2d, input_sample_rate, output_sample_rate=None, f_range=None, duration=None))]
 /// Python bindings for a 2D version of the `compute_fakeprint` function.
 /// `audio_2d` is a 2D array of shape [time, channels] containing audio samples in the range [-1.0, 1.0].
 /// `input_sample_rate` is the sample rate of the input audio.
@@ -38,6 +49,7 @@ fn py_compute_fakeprint_2d(
     input_sample_rate: u32,
     output_sample_rate: Option<u32>,
     f_range: Option<(f32, f32)>,
+    duration: Option<u32>,
 ) -> PyResult<Vec<f32>> {
     if audio_2d.is_empty() {
         return Err(PyValueError::new_err("audio_2d is empty"));
@@ -48,7 +60,14 @@ fn py_compute_fakeprint_2d(
     for frame in audio_2d {
         pcm_audio.extend(frame);
     }
-    Ok(compute_fakeprint(&pcm_audio, input_sample_rate, output_sample_rate, f_range).to_vec())
+    Ok(compute_fakeprint(
+        &pcm_audio,
+        input_sample_rate,
+        output_sample_rate,
+        f_range,
+        duration,
+    )
+    .to_vec())
 }
 
 pub fn register_python_module(module: &Bound<'_, PyModule>) -> PyResult<()> {
