@@ -143,13 +143,13 @@ mod tests {
     #[cfg(target_arch = "wasm32")]
     #[wasm_bindgen_test]
     fn test_run_inference_dummy_audio() {
-        let pcm_audio = (0..(44_100 * 2))
+        let pcm_audio = (0..(48_000 * 2))
             .flat_map(|i| {
                 let sample = if i % 2 == 0 { 0.1 } else { -0.1 };
                 [sample, sample]
             })
             .collect::<Vec<f32>>();
-        let prob = run_inference(&pcm_audio, 44_100).expect("Inference failed");
+        let prob = run_inference(&pcm_audio, 48_000).expect("Inference failed");
         assert!(
             (0.0..=1.0).contains(&prob),
             "Expected probability in [0, 1], got {}",
