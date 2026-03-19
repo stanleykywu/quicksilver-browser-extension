@@ -293,6 +293,46 @@ mod tests {
     }
 
     #[test]
+    fn test_resample_same_rate_returns_clone() {
+        let audio_slice = Array2::from_shape_vec((3, 2), vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5])
+            .expect("failed to build test audio");
+        let resampled = resample_audio(&audio_slice, 44_100, 44_100);
+        assert_eq!(resampled, audio_slice);
+    }
+
+    #[test]
+    fn test_resample_small_input_flushes_delay() {
+        let len = 34;
+        let data = (0..len)
+            .flat_map(|i| {
+                let sample = i as f32 / len as f32;
+                [sample, -sample]
+            })
+            .collect::<Vec<f32>>();
+        let audio_slice =
+            Array2::from_shape_vec((len, 2), data).expect("failed to build test audio");
+        let resampled = resample_audio(&audio_slice, 48_000, 44_100);
+        assert_eq!(resampled.shape(), &[31, 2]);
+        assert!(resampled.iter().all(|sample| sample.is_finite()));
+    }
+
+    #[test]
+    #[should_panic(expected = "Failed to convert resampled audio to 2D array")]
+    fn test_resample_tiny_input_hits_flush_break() {
+        let audio_slice =
+            Array2::from_shape_vec((1, 2), vec![0.25, -0.25]).expect("failed to build test audio");
+        let _ = resample_audio(&audio_slice, 48_000, 44_100);
+    }
+
+    #[test]
+    #[should_panic(expected = "Expected audio slice to have 2 channels, but got 1")]
+    fn test_resample_panics_on_wrong_channel_count() {
+        let audio_slice =
+            Array2::from_shape_vec((4, 1), vec![0.0, 0.1, 0.2, 0.3]).expect("failed to build test audio");
+        let _ = resample_audio(&audio_slice, 44_100, 48_000);
+    }
+
+    #[test]
     fn open_audio_slice1() {
         let pcm_audio = vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5]; // 3 samples of stereo audio
         let audio_slice = open_audio_slice(&pcm_audio);
@@ -502,5 +542,18 @@ mod tests {
             .collect::<Vec<f32>>();
         let fakeprint = compute_fakeprint(&pcm_audio, 44100, None, None, None);
         assert_eq!(fakeprint.len(), 4087); // should have 4087 frequency bins for N_FFT=16384
+    }
+
+    #[test]
+    #[should_panic(expected = "pcm_audio is empty")]
+    fn test_compute_fakeprint_panics_on_empty_audio() {
+        let _ = compute_fakeprint(&[], 44_100, None, None, None);
+    }
+
+    #[test]
+    #[should_panic(expected = "pcm_audio is too short")]
+    fn test_compute_fakeprint_panics_on_short_audio() {
+        let pcm_audio = vec![0.0; (N_FFT - 1) * NUM_CHANNELS];
+        let _ = compute_fakeprint(&pcm_audio, 44_100, None, None, None);
     }
 }

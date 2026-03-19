@@ -16,7 +16,11 @@ fn lower_hull(x: &Array1<f32>, area: Option<usize>) -> (Vec<usize>, Vec<f32>) {
     let mut idx: Vec<usize> = Vec::new();
     let mut hull: Vec<f32> = Vec::new();
 
-    if n == 0 || area == 0 || n < area {
+    if n == 0 {
+        panic!("Input x cannot be empty");
+    }
+
+    if area == 0 || n < area {
         return (vec![0, n.saturating_sub(1)], vec![x[0], x[n - 1]]);
     }
 
@@ -199,6 +203,21 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected = "Input x cannot be empty")]
+    fn test_lower_hull_empty_input() {
+        let x = Array1::from(vec![]);
+        let _ = lower_hull(&x, Some(2));
+    }
+
+    #[test]
+    fn test_lower_hull_short_input_returns_endpoints() {
+        let x = Array1::from(vec![3.5]);
+        let (idx, hull) = lower_hull(&x, Some(2));
+        assert_eq!(idx, vec![0, 0]);
+        assert_eq!(hull, vec![3.5, 3.5]);
+    }
+
+    #[test]
     fn test_curve_profile() {
         let x = Array1::from(vec![
             0., 2500., 5000., 7500., 10000., 12500., 15000., 17500., 20000., 22500., 25000.,
@@ -268,5 +287,13 @@ mod tests {
                 expected_profile[i]
             );
         }
+    }
+
+    #[test]
+    #[should_panic(expected = "freqs and curve must have the same length")]
+    fn test_curve_profile_panics_on_mismatched_lengths() {
+        let freqs = Array1::from(vec![1.0, 2.0]);
+        let curve = Array1::from(vec![1.0]);
+        let _ = curve_profile(&freqs, &curve, None, None);
     }
 }

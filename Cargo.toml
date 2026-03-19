@@ -38,3 +38,6 @@ wasm-bindgen-test = "0.3"
 [profile.profiling]
 inherits = "release"
 debug = true
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(tarpaulin_include)'] }

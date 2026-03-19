@@ -64,6 +64,7 @@ static MODEL: LazyLock<BinaryLogisticRegression> = LazyLock::new(|| {
 });
 
 #[wasm_bindgen]
+#[cfg(not(tarpaulin_include))]
 pub fn run_inference(pcm_audio: &[f32], input_sample_rate: u32) -> Result<f64, JsValue> {
     if pcm_audio.is_empty() {
         return Err(JsValue::from_str("pcm_audio is empty"));
@@ -75,6 +76,8 @@ pub fn run_inference(pcm_audio: &[f32], input_sample_rate: u32) -> Result<f64, J
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_cbor::Value;
+    use std::collections::BTreeMap;
     #[cfg(target_arch = "wasm32")]
     use wasm_bindgen_test::wasm_bindgen_test;
     #[cfg(target_arch = "wasm32")]
@@ -138,6 +141,42 @@ mod tests {
             expected,
             prob
         );
+    }
+
+    #[test]
+    fn test_from_cbor_rejects_invalid_feature_count() {
+        let map = BTreeMap::from([
+            (Value::Text("coef".into()), Value::Array(vec![Value::Float(1.0)])),
+            (Value::Text("intercept".into()), Value::Float(0.0)),
+            (Value::Text("n_features".into()), Value::Integer(2)),
+        ]);
+        let bytes = serde_cbor::to_vec(&Value::Map(map))
+        .expect("failed to encode test cbor");
+
+        let err = match BinaryLogisticRegression::from_cbor(&bytes) {
+            Ok(_) => panic!("expected invalid model"),
+            Err(err) => err,
+        };
+        assert_eq!(err, "Invalid model: coef length 1 does not match n_features 2");
+    }
+
+    #[test]
+    fn test_predict_rejects_wrong_feature_count() {
+        let model = BinaryLogisticRegression {
+            coef: vec![0.5, -0.25],
+            intercept: 0.0,
+            n_features: 2,
+        };
+
+        let err = model.predict(&[1.0]).expect_err("expected feature count validation error");
+        assert_eq!(err, "Expected 2 features, got 1");
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    #[wasm_bindgen_test]
+    fn test_run_inference_rejects_empty_audio() {
+        let err = run_inference(&[], 44_100).expect_err("expected empty-audio error");
+        assert_eq!(err.as_string().as_deref(), Some("pcm_audio is empty"));
     }
 
     #[cfg(target_arch = "wasm32")]

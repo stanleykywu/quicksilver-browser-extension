@@ -155,4 +155,9 @@ mod tests {
                 .expect("Failed to deserialize expected STFT result");
         test_stft(&audio_slice, &expected);
     }
+
+    #[test]
+    fn test_hann_window_zero_length() {
+        assert!(hann_window(0).is_empty());
+    }
 }
