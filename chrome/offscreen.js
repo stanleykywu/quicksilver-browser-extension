@@ -36,7 +36,7 @@ chrome.runtime.onMessage.addListener((message) => {
 });
 
 async function initializeWasm() {
-    const wasmModule = await import("./pkg/ai_music_browser_detector.js");
+    const wasmModule = await import("./pkg/quicksilver.js");
     await wasmModule.default();
     runInference = wasmModule.run_inference;
 }

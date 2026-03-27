@@ -26,7 +26,7 @@ case "$TARGET" in
             echo "wasm-pack found, skipping installation"
         fi
         echo "Building web package..."
-        wasm-pack build --release --no-typescript --target web --features web
+        wasm-pack build -d chrome/pkg --release --no-typescript --target web --features web
         ;;
     python)
         echo "Building Python bindings..."
@@ -43,7 +43,7 @@ case "$TARGET" in
             echo "wasm-pack found, skipping installation"
         fi
         echo "Building web package..."
-        wasm-pack build --release --no-typescript --target web --features web
+        wasm-pack build -d chrome/pkg --release --no-typescript --target web --features web
         echo "Building Python bindings..."
         uv sync --reinstall
         ;;
