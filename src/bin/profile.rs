@@ -1,7 +1,7 @@
 #[cfg(not(feature = "web"))]
-use ai_music_browser_detector::core;
+use quicksilver::core;
 #[cfg(feature = "web")]
-use ai_music_browser_detector::web;
+use quicksilver::web;
 use hound;
 
 fn main() {

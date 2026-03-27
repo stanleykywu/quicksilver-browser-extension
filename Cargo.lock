@@ -3,27 +3,6 @@
 version = 4
 
 [[package]]
-name = "ai-music-browser-detector"
-version = "0.1.0"
-dependencies = [
- "getrandom 0.2.17",
- "getrandom 0.3.4",
- "getrandom 0.4.2",
- "hound",
- "pyo3",
- "realfft",
- "rubato",
- "scirs2-core",
- "scirs2-interpolate",
- "serde",
- "serde_cbor",
- "serde_json",
- "uuid",
- "wasm-bindgen",
- "wasm-bindgen-test",
-]
-
-[[package]]
 name = "android_system_properties"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -891,6 +870,27 @@ dependencies = [
  "pyo3-build-config",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "quicksilver"
+version = "0.1.0"
+dependencies = [
+ "getrandom 0.2.17",
+ "getrandom 0.3.4",
+ "getrandom 0.4.2",
+ "hound",
+ "pyo3",
+ "realfft",
+ "rubato",
+ "scirs2-core",
+ "scirs2-interpolate",
+ "serde",
+ "serde_cbor",
+ "serde_json",
+ "uuid",
+ "wasm-bindgen",
+ "wasm-bindgen-test",
 ]
 
 [[package]]

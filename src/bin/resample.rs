@@ -22,8 +22,8 @@ fn main() {
         spec.sample_rate,
         samples.len()
     );
-    let audio_slice = ai_music_browser_detector::core::fakeprint::open_audio_slice(&samples);
-    let resampled = ai_music_browser_detector::core::fakeprint::resample_audio(
+    let audio_slice = quicksilver::core::fakeprint::open_audio_slice(&samples);
+    let resampled = quicksilver::core::fakeprint::resample_audio(
         &audio_slice,
         spec.sample_rate,
         44100,

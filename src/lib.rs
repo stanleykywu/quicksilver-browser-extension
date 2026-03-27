@@ -6,8 +6,7 @@ pub mod python;
 #[cfg(feature = "web")]
 pub mod web;
 
-#[cfg(test)]
-#[cfg(feature = "web")]
+#[cfg(all(test, feature = "web", not(target_arch = "wasm32")))]
 mod tests {
     use super::*;
 
