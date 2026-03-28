@@ -10,4 +10,5 @@ zip -r "$OUT_ZIP" \
   chromium/*.html \
   chromium/pkg \
   chromium/LICENSE.md \
+  chromium/privacy_policy.md \
   chromium/assets/icon*.png
