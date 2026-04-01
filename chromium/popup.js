@@ -242,7 +242,7 @@ async function renderResultsPanel(fallbackSession = null) {
             title: detection.title || activePage.title,
             url: detection.url || activePage.url,
             verdict: detection.verdict || "Saved result",
-            probability: `AI probability: ${formatScore(detection.score)}`,
+            ...(detection.score != null ? { probability: `AI probability: ${formatScore(detection.score)}` } : {}),
             warning: detection.hasSufficientAudio === false
                 ? "We detected that a significant portion of analyzed audio is silent. Results are likely unreliable."
                 : "",
