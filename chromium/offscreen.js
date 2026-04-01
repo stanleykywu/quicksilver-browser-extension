@@ -130,7 +130,7 @@ async function setupAudioGraph(stream) {
     monitorAudio.play();
 
     audioContext = new AudioContext(
-        {"latencyHint": "interactive"}
+        { "latencyHint": "interactive" }
     );
     sampleRate = audioContext.sampleRate;
     sourceNode = audioContext.createMediaStreamSource(stream);
@@ -231,7 +231,7 @@ async function completeInference(sessionSnapshot, flattenedPcm) {
 
     const completedAt = Date.now();
     const score = numericScore;
-    const verdict = score > 0.5 ? "Likely AI" : "Unlikely AI";
+    const verdict = score > 0.8 ? "Likely AI" : "Unlikely AI";
     const historyEntry = {
         sessionId: sessionSnapshot.sessionId,
         normalizedUrl: sessionSnapshot.normalizedUrl,
