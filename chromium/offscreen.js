@@ -232,6 +232,7 @@ async function completeInference(sessionSnapshot, flattenedPcm) {
     const completedAt = Date.now();
     const score = numericScore;
     const verdict = score > 0.8 ? "Likely AI" : "Unlikely AI";
+    const displayScore = verdict === "Unlikely AI" ? null : score;
     const historyEntry = {
         sessionId: sessionSnapshot.sessionId,
         normalizedUrl: sessionSnapshot.normalizedUrl,
@@ -239,7 +240,7 @@ async function completeInference(sessionSnapshot, flattenedPcm) {
         title: sessionSnapshot.tabTitle,
         capturedAt: sessionSnapshot.startedAt,
         completedAt,
-        score,
+        ...(displayScore !== null && { score: displayScore }),
         verdict,
         sampleRate,
         hasSufficientAudio
@@ -250,7 +251,7 @@ async function completeInference(sessionSnapshot, flattenedPcm) {
         type: MESSAGE_TYPE.DETECTION_COMPLETED,
         sessionId: sessionSnapshot.sessionId,
         normalizedUrl: sessionSnapshot.normalizedUrl,
-        score,
+        ...(displayScore !== null && { score: displayScore }),
         verdict,
         sampleRate,
         hasSufficientAudio,
