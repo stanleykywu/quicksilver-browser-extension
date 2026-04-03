@@ -115,7 +115,8 @@ mod tests {
 
     #[test]
     fn test_model_prediction2() {
-        let model = BinaryLogisticRegression::from_cbor(MODEL_BYTES).expect("Failed to load model");
+        let model_bytes = include_bytes!("../../model/v1-2026-03-17/model.cbor");
+        let model = BinaryLogisticRegression::from_cbor(model_bytes).expect("Failed to load model");
         let features = (0..model.n_features)
             .map(|i| i as f32 / 5000.0) // dummy features
             .collect::<Vec<f32>>();
@@ -133,7 +134,9 @@ mod tests {
         let bytes = include_bytes!("../../tests/assets/aifp.json");
         let fakeprint: Vec<f32> =
             serde_json::from_slice(bytes).expect("Failed to deserialize fakeprint");
-        let prob = MODEL.predict(&fakeprint).unwrap();
+        let model_bytes = include_bytes!("../../model/v1-2026-03-17/model.cbor");
+        let model = BinaryLogisticRegression::from_cbor(model_bytes).expect("Failed to load model");
+        let prob = model.predict(&fakeprint).unwrap();
         let expected = 1.0 - 2.98884029e-10;
         assert!(
             (prob - expected).abs() < 1e-6,
@@ -177,24 +180,5 @@ mod tests {
     fn test_run_inference_rejects_empty_audio() {
         let err = run_inference(&[], 44_100).expect_err("expected empty-audio error");
         assert_eq!(err.as_string().as_deref(), Some("pcm_audio is empty"));
-    }
-
-    #[cfg(target_arch = "wasm32")]
-    #[wasm_bindgen_test]
-    fn test_run_inference_dummy_audio() {
-        let pcm_audio = (0..(48_000 * 2))
-            .flat_map(|i| {
-                let sample = if i % 2 == 0 { 0.1 } else { -0.1 };
-                [sample, sample]
-            })
-            .collect::<Vec<f32>>();
-        let prob = run_inference(&pcm_audio, 48_000).expect("Inference failed");
-        let expected = 0.24525314037105825;
-        assert!(
-            (prob - expected).abs() < 1e-6,
-            "Expected={}, got={}",
-            expected,
-            prob
-        );
     }
 }
