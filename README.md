@@ -29,7 +29,7 @@ Quicksilver is composed of three modules:
 2. Python bindings for exporting the fakeprint computation as the Python package `fakepyrint`, found under `src/python`. These bindings are used for training the logistic regression used for inference.
 3. WebAssembly bindings for running end-to-end inference with the latest model, found under `src/web`.
 
-Additionally, the `chromium/` folder contains the publicly available web extension. Note that by default, the WASM bindings are not included in the `chromium/` folder. To install the bindings, run `./scripts/build.sh web` (see (Building Quicksilver)[#building-quicksilver]).
+Additionally, the `chromium/` folder contains the publicly available web extension. Note that by default, the WASM bindings are not included in the `chromium/` folder. To install the bindings, run `./scripts/build.sh web` (see [Building Quicksilver](#building-quicksilver)).
 
 We have provided a set of shell scripts to make it easy to contribute to Quicksilver. These scripts assume you have [Rust](https://rust-lang.org/tools/install/) (along with Cargo) and [uv](https://docs.astral.sh/uv/getting-started/installation/) already installed on your computer. uv is not needed if you don't plan on installing the Python bindings.
 
