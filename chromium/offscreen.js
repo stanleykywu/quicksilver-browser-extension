@@ -231,8 +231,8 @@ async function completeInference(sessionSnapshot, flattenedPcm) {
 
     const completedAt = Date.now();
     const score = numericScore;
-    const verdict = score > 0.8 ? "Likely AI" : "Unlikely AI";
-    const displayScore = verdict === "Unlikely AI" ? null : score;
+    const verdict = score > 0.8 ? "Likely AI" : "Likely Non-AI";
+    const displayScore = verdict === "Likely Non-AI" ? null : score;
     const historyEntry = {
         sessionId: sessionSnapshot.sessionId,
         normalizedUrl: sessionSnapshot.normalizedUrl,

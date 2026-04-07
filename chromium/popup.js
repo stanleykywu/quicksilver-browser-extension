@@ -331,10 +331,10 @@ function setProgress(percent) {
 function renderResultItem({ title, url, verdict, probability, meta, warning, pending }) {
     const verdictClass = pending
         ? "pending"
-        : verdict?.toLowerCase().includes("unlikely")
-            ? "unlikely"
+        : verdict?.toLowerCase().includes("non-ai")
+            ? "non-ai"
             : verdict?.toLowerCase().includes("likely")
-                ? "likely"
+                ? "ai"
                 : "";
 
     resultsList.innerHTML = `

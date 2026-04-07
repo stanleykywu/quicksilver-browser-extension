@@ -15,18 +15,10 @@ After you have installed Quicksilver through your browser's extension store, ple
 ### Using Quicksilver
 Quicksilver directly analyzes the audio that comes from your browser. All you need to do is play music as you would normally, then click the "Analyze" button in the Quicksilver extension. After clicking "Analyze", please do not pause/reload the page, and allow the music to play for a full 30 seconds to avoid incomplete results. Please refer to the following screenshots for examples.
 
-<figure>
-  <img src="./chromium/assets/screenshot-1.png" alt="Analyzing audio">
-  <figcaption>Analyzing audio</figcaption>
-</figure>
-<figure>
-  <img src="./chromium/assets/screenshot-2.png" alt="AI detected">
-  <figcaption>AI detected</figcaption>
-</figure>
-<figure>
-  <img src="./chromium/assets/screenshot-3.png" alt="AI not detected">
-  <figcaption>AI not detected</figcaption>
-</figure>
+| | | |
+|---|---|---|
+| <p align="center">Analyzing audio</p> | <p align="center">AI detected</p> | <p align="center">AI not detected</p> |
+| <p align="center"><img src="./chromium/assets/screenshot-1.png" width="300"></p> | <p align="center"><img src="./chromium/assets/screenshot-2.png" width="300"></p> | <p align="center"><img src="./chromium/assets/screenshot-3.png" width="300"></p> |
 
 Notes:
 * Your computer does not need to be unmuted for Quicksilver to analyze audio. However, the site in which you stream audio from should not be muted. Quicksilver will warn you if it detects a significant amount of silence in the analyzed audio.
