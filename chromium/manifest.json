@@ -1,7 +1,7 @@
 {
   "name": "Quicksilver",
-  "version": "0.2",
-  "version_name": "0.2 beta",
+  "version": "1.0",
+  "version_name": "1.0",
   "description": "Allows users to analyze and detect AI-generated music (audio) using machine learning.",
   "manifest_version": 3,
   "permissions": [

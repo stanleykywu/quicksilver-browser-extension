@@ -1,5 +1,5 @@
-# Quicksilver Model v1.2
-_updated April 1st 2026_
+# Quicksilver Model v1.0
+_Last updated: April 1st 2026_
 
 This version of the model heavily scales up training for both AI and non-AI audio, and includes non-music human audio as additional negative class (not AI). 
 
