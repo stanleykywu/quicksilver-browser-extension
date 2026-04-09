@@ -78,6 +78,41 @@ export async function getDetectionHistoryForUrl(normalizedUrl) {
     );
 }
 
+export async function getRecentDetections(limit = 5) {
+    const db = await getDatabase();
+    const store = db.transaction(DETECTION_HISTORY_STORE, "readonly")
+        .objectStore(DETECTION_HISTORY_STORE);
+
+    if (!store.indexNames.contains("by_completed_at")) {
+        return requestToPromise(store.getAll()).then((records) =>
+            records
+                .sort((left, right) => right.completedAt - left.completedAt)
+                .slice(0, limit)
+        );
+    }
+
+    const index = store.index("by_completed_at");
+
+    return new Promise((resolve, reject) => {
+        const records = [];
+        const request = index.openCursor(null, "prev");
+
+        request.onsuccess = () => {
+            const cursor = request.result;
+
+            if (!cursor || records.length >= limit) {
+                resolve(records);
+                return;
+            }
+
+            records.push(cursor.value);
+            cursor.continue();
+        };
+
+        request.onerror = () => reject(request.error || new Error("IndexedDB cursor failed."));
+    });
+}
+
 async function getDatabase() {
     if (!databasePromise) {
         databasePromise = openDatabase();
@@ -105,6 +140,7 @@ function openDatabase() {
                     "by_url_and_completed_at",
                     ["normalizedUrl", "completedAt"]
                 );
+                historyStore.createIndex("by_completed_at", "completedAt");
             }
 
             if (!db.objectStoreNames.contains(LATEST_DETECTION_STORE)) {

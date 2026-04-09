@@ -7,7 +7,7 @@ import {
 } from "./constants.js";
 import {
     getActiveCaptureSession,
-    getLatestDetectionForUrl
+    getRecentDetections
 } from "./storage.js";
 
 const recordButton = document.getElementById("record");
@@ -221,47 +221,45 @@ async function renderResultsPanel(fallbackSession = null) {
     const visibleSession = activeCaptureSession || fallbackSession;
 
     if (visibleSession) {
-        renderPendingResult(visibleSession);
-        return;
-    }
-
-    if (!activePage?.url) {
-        showEmptyResult("This page cannot be analyzed.");
+        renderPendingResults(visibleSession);
         return;
     }
 
     try {
-        const detection = await getLatestDetectionForUrl(activePage.url);
+        const detections = await getRecentDetections(5);
 
-        if (!detection) {
-            showEmptyResult("No saved result for this page.");
+        if (detections.length === 0) {
+            showEmptyResult("No saved detections yet.");
             return;
         }
 
-        renderResultItem({
-            title: detection.title || activePage.title,
-            url: detection.url || activePage.url,
+        renderResultItems(detections.map((detection) => ({
+            title: detection.title || "Untitled page",
+            url: detection.url || detection.normalizedUrl || "",
             verdict: detection.verdict || "Saved result",
-            ...(detection.score != null ? { probability: `AI probability: ${formatScore(detection.score)}` } : {}),
+            ...(detection.score != null
+                ? { probability: `AI probability: ${formatScore(detection.score)}` }
+                : {}),
+            meta: formatTimestamp(detection.completedAt),
             warning: detection.hasSufficientAudio === false
                 ? "We detected that a significant portion of analyzed audio is silent. Results are likely unreliable."
                 : "",
             pending: false
-        });
+        })));
     } catch (error) {
         console.error("Failed to render results", error);
-        showEmptyResult("No saved result for this page.");
+        showEmptyResult("No saved detections yet.");
     }
 }
 
-function renderPendingResult(session) {
-    renderResultItem({
+function renderPendingResults(session) {
+    renderResultItems([{
         title: session.tabTitle,
         url: session.normalizedUrl,
         verdict: getPendingStatusLabel(session.status),
         meta: "A saved result will appear after the 30 second sample.",
         pending: true
-    });
+    }]);
 }
 
 function getPendingStatusLabel(status) {
@@ -328,29 +326,31 @@ function setProgress(percent) {
     progressFill.style.width = `${clampedPercent}%`;
 }
 
-function renderResultItem({ title, url, verdict, probability, meta, warning, pending }) {
-    const verdictClass = pending
-        ? "pending"
-        : verdict?.toLowerCase().includes("non-ai")
-            ? "non-ai"
-            : verdict?.toLowerCase().includes("likely")
-                ? "ai"
-                : "";
+function renderResultItems(items) {
+    resultsList.innerHTML = items.map(({ title, url, verdict, probability, meta, warning, pending }) => {
+        const verdictClass = pending
+            ? "pending"
+            : verdict?.toLowerCase().includes("non-ai")
+                ? "non-ai"
+                : verdict?.toLowerCase().includes("likely")
+                    ? "ai"
+                    : "";
+        const safeUrl = url || "#";
 
-    resultsList.innerHTML = `
-        <div class="result-item ${verdictClass}">
-            <div class="result-item-verdict">${escapeHtml(verdict || "")}</div>
-            ${probability ? `<div class="result-item-probability">${escapeHtml(probability)}</div>` : ""}
-            ${warning ? `<div class="result-item-warning">${escapeHtml(warning)}</div>` : ""}
-            <div class="result-item-title">${escapeHtml(title || "Untitled page")}</div>
-            <div class="result-item-url">
-                <a href="${escapeHtml(url || "#")}" target="_blank" rel="noopener noreferrer">
-                    ${escapeHtml(url || "")}
-                </a>
+        return `
+            <div class="result-item ${verdictClass}">
+                <div class="result-item-verdict">${escapeHtml(verdict || "")}</div>
+                ${probability ? `<div class="result-item-probability">${escapeHtml(probability)}</div>` : ""}
+                ${warning ? `<div class="result-item-warning">${escapeHtml(warning)}</div>` : ""}
+                <div class="result-item-title">
+                    <a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">
+                        ${escapeHtml(title || "Untitled page")}
+                    </a>
+                </div>
+                ${meta ? `<div class="result-item-meta">${escapeHtml(meta)}</div>` : ""}
             </div>
-            ${meta ? `<div class="result-item-meta">${escapeHtml(meta)}</div>` : ""}
-        </div>
-    `;
+        `;
+    }).join("");
 }
 
 function showEmptyResult(message) {
@@ -441,4 +441,12 @@ function formatScore(score) {
     }
 
     return `${(score * 100).toFixed(1)}%`;
+}
+
+function formatTimestamp(timestamp) {
+    if (typeof timestamp !== "number" || Number.isNaN(timestamp)) {
+        return "";
+    }
+
+    return new Date(timestamp).toLocaleString();
 }
