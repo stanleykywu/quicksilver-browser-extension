@@ -66,6 +66,70 @@
             gap: 8px;
         }
 
+        .history-accordion {
+            display: grid;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .history-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            border: 0;
+            padding: 0;
+            background: transparent;
+            color: #7b8794;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .history-toggle:hover {
+            color: #52606d;
+        }
+
+        .history-toggle-label {
+            letter-spacing: inherit;
+        }
+
+        .history-toggle-icon {
+            font-size: 13px;
+            line-height: 1;
+            transition: transform 0.22s ease;
+        }
+
+        .history-toggle[aria-expanded="true"] .history-toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .history-panel {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.26s ease, opacity 0.18s ease;
+        }
+
+        .history-panel.expanded {
+            max-height: 520px;
+            opacity: 1;
+        }
+
+        .history-panel-inner {
+            overflow: hidden;
+            padding: 0 0 12px;
+            transform: translateY(-6px);
+            transition: transform 0.24s ease;
+        }
+
+        .history-panel.expanded .history-panel-inner {
+            transform: translateY(0);
+        }
+
         .results-list {
             display: grid;
             gap: 10px;
@@ -83,19 +147,24 @@
             display: grid;
             gap: 6px;
             padding: 12px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
             border-radius: 12px;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
         }
 
         .result-item.pending {
-            background: #f0f4f8;
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+            border-color: rgba(148, 163, 184, 0.28);
         }
 
         .result-item.non-ai {
-            background: #e6f4ea;
+            background: linear-gradient(180deg, #edf8f1 0%, #e3f1e8 100%);
+            border-color: rgba(54, 125, 69, 0.22);
         }
 
         .result-item.ai {
-            background: #fde8e8;
+            background: linear-gradient(180deg, #fff1f1 0%, #fde3e3 100%);
+            border-color: rgba(181, 72, 72, 0.22);
         }
 
         .result-item-verdict {
@@ -231,9 +300,20 @@
         </div>
 
         <div class="results-section">
-            <div class="eyebrow">Recent Detections</div>
+            <div class="eyebrow">Current Page</div>
             <div id="results-list" class="results-list">
                 <div id="results-empty" class="results-empty">No results yet</div>
+            </div>
+            <div class="history-accordion">
+                <button id="history-toggle" class="history-toggle" type="button" aria-expanded="false" aria-controls="history-panel">
+                    <span class="history-toggle-label">Recent detections</span>
+                    <span class="history-toggle-icon" aria-hidden="true">▾</span>
+                </button>
+                <div id="history-panel" class="history-panel" aria-hidden="true">
+                    <div class="history-panel-inner">
+                        <div id="history-list" class="results-list"></div>
+                    </div>
+                </div>
             </div>
         </div>
 

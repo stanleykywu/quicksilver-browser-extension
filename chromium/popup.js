@@ -7,6 +7,7 @@ import {
 } from "./constants.js";
 import {
     getActiveCaptureSession,
+    getLatestDetectionForUrl,
     getRecentDetections
 } from "./storage.js";
 
@@ -14,6 +15,9 @@ const recordButton = document.getElementById("record");
 const cancelButton = document.getElementById("cancel");
 const timerDisplay = document.getElementById("timer");
 const resultsList = document.getElementById("results-list");
+const historyList = document.getElementById("history-list");
+const historyPanel = document.getElementById("history-panel");
+const historyToggle = document.getElementById("history-toggle");
 const timerContainer = document.getElementById("timer-container");
 const progressFill = document.getElementById("progress-fill");
 
@@ -22,6 +26,7 @@ let activeCaptureSession = null;
 let countdownInterval = null;
 let offscreenCreationPromise = null;
 let hasLiveOffscreenSession = false;
+let isHistoryExpanded = false;
 
 recordButton.addEventListener("click", () => {
     void startCapture();
@@ -29,6 +34,10 @@ recordButton.addEventListener("click", () => {
 
 cancelButton.addEventListener("click", () => {
     void cancelCapture();
+});
+
+historyToggle.addEventListener("click", () => {
+    void toggleHistory();
 });
 
 chrome.runtime.onMessage.addListener((message) => {
@@ -53,6 +62,7 @@ async function startCapture() {
 
     if (!activePage?.url || !activePage.tabId) {
         showEmptyResult("This page cannot be analyzed.");
+        await renderHistoryPanel();
         return;
     }
 
@@ -221,7 +231,71 @@ async function renderResultsPanel(fallbackSession = null) {
     const visibleSession = activeCaptureSession || fallbackSession;
 
     if (visibleSession) {
-        renderPendingResults(visibleSession);
+        renderPrimaryResult({
+            title: visibleSession.tabTitle,
+            url: visibleSession.normalizedUrl,
+            verdict: getPendingStatusLabel(visibleSession.status),
+            meta: "A saved result will appear after the 30 second sample.",
+            pending: true
+        });
+        await renderHistoryPanel();
+        return;
+    }
+
+    if (!activePage?.url) {
+        showEmptyResult("This page cannot be analyzed.");
+        await renderHistoryPanel();
+        return;
+    }
+
+    try {
+        const detection = await getLatestDetectionForUrl(activePage.url);
+
+        if (!detection) {
+            showEmptyResult("No saved result for this page.");
+            await renderHistoryPanel();
+            return;
+        }
+
+        renderPrimaryResult({
+            title: detection.title || activePage.title || "Untitled page",
+            url: detection.url || detection.normalizedUrl || activePage.url,
+            verdict: detection.verdict || "Saved result",
+            ...(detection.score != null ? { probability: `AI probability: ${formatScore(detection.score)}` } : {}),
+            meta: formatTimestamp(detection.completedAt),
+            warning: detection.hasSufficientAudio === false
+                ? "We detected that a significant portion of analyzed audio is silent. Results are likely unreliable."
+                : "",
+            pending: false
+        });
+        await renderHistoryPanel();
+    } catch (error) {
+        console.error("Failed to render results", error);
+        showEmptyResult("No saved result for this page.");
+        await renderHistoryPanel();
+    }
+}
+
+function renderPrimaryResult(item) {
+    renderResultItems(resultsList, [item]);
+}
+
+async function toggleHistory() {
+    isHistoryExpanded = !isHistoryExpanded;
+    updateHistoryVisibility();
+    await renderHistoryPanel();
+}
+
+function updateHistoryVisibility() {
+    historyToggle.setAttribute("aria-expanded", String(isHistoryExpanded));
+    historyPanel.classList.toggle("expanded", isHistoryExpanded);
+    historyPanel.setAttribute("aria-hidden", String(!isHistoryExpanded));
+}
+
+async function renderHistoryPanel() {
+    updateHistoryVisibility();
+
+    if (!isHistoryExpanded) {
         return;
     }
 
@@ -229,17 +303,15 @@ async function renderResultsPanel(fallbackSession = null) {
         const detections = await getRecentDetections(5);
 
         if (detections.length === 0) {
-            showEmptyResult("No saved detections yet.");
+            historyList.innerHTML = `<div class="results-empty">${escapeHtml("No saved detections yet.")}</div>`;
             return;
         }
 
-        renderResultItems(detections.map((detection) => ({
+        renderResultItems(historyList, detections.map((detection) => ({
             title: detection.title || "Untitled page",
             url: detection.url || detection.normalizedUrl || "",
             verdict: detection.verdict || "Saved result",
-            ...(detection.score != null
-                ? { probability: `AI probability: ${formatScore(detection.score)}` }
-                : {}),
+            ...(detection.score != null ? { probability: `AI probability: ${formatScore(detection.score)}` } : {}),
             meta: formatTimestamp(detection.completedAt),
             warning: detection.hasSufficientAudio === false
                 ? "We detected that a significant portion of analyzed audio is silent. Results are likely unreliable."
@@ -247,19 +319,9 @@ async function renderResultsPanel(fallbackSession = null) {
             pending: false
         })));
     } catch (error) {
-        console.error("Failed to render results", error);
-        showEmptyResult("No saved detections yet.");
+        console.error("Failed to render history", error);
+        historyList.innerHTML = `<div class="results-empty">${escapeHtml("No saved detections yet.")}</div>`;
     }
-}
-
-function renderPendingResults(session) {
-    renderResultItems([{
-        title: session.tabTitle,
-        url: session.normalizedUrl,
-        verdict: getPendingStatusLabel(session.status),
-        meta: "A saved result will appear after the 30 second sample.",
-        pending: true
-    }]);
 }
 
 function getPendingStatusLabel(status) {
@@ -326,8 +388,8 @@ function setProgress(percent) {
     progressFill.style.width = `${clampedPercent}%`;
 }
 
-function renderResultItems(items) {
-    resultsList.innerHTML = items.map(({ title, url, verdict, probability, meta, warning, pending }) => {
+function renderResultItems(container, items) {
+    container.innerHTML = items.map(({ title, url, verdict, probability, meta, warning, pending }) => {
         const verdictClass = pending
             ? "pending"
             : verdict?.toLowerCase().includes("non-ai")
